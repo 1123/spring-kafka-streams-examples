@@ -9,6 +9,10 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Demo for creating topics through admin client.
+ */
+
 @SpringBootApplication
 public class TopicCreator {
 

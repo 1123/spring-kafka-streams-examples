@@ -12,6 +12,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.Collections;
 
+/**
+ * This test should generate some imaginary page views and updates to web pages.
+ * Subsequently it should enrich the dynamic page views with the static data from the web pages.
+ *
+ * The relationship between pages and page views is 1:n.
+ * Page views must be re keyed prior to being joined -- since the original keys of the page views are __not__ the page ids.
+ */
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { TestConfig.class })
@@ -23,29 +30,16 @@ class ForeignKeyJoinTest {
     @Autowired
     private PageviewStream pageviewStream;
 
-    /**
-     * TODO: work in progress
-     * This test should produce some pageviews, produce some pages.
-     * Then do a one to many join between pageviews and pages.
-     */
-
     @BeforeEach
     void cleanup() {
+        // TODO: there are more topics that need to be cleaned up.
+        // Ideally this should also run after the test.
+        // There is a class that possibly could do this for us: See the StreamsResetter class.
         adminClient.deleteTopics(Arrays.asList(
                 "foreign-key-join-integration-test-KSTREAM-AGGREGATE-STATE-STORE-0000000004-changelog",
                 "foreign-key-join-integration-test-KSTREAM-AGGREGATE-STATE-STORE-0000000004-repartition"
         ));
     }
-
-    /*
-     * kafka-console-consumer
-     *   --bootstrap-server localhost:9092
-     *   --topic pageviewsByPageCount
-     *   --from-beginning
-     *   --property print.key=true
-     *   --key-deserializer org.apache.kafka.common.serialization.IntegerDeserializer
-     *   --value-deserializer org.apache.kafka.common.serialization.LongDeserializer
-     */
 
     @Test
     void test() throws InterruptedException {

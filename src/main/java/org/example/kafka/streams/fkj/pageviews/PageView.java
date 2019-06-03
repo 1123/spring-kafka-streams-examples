@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj;
+package org.example.kafka.streams.fkj.pageviews;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class PageView {
+public class PageView {
 
-    Integer pageId;
-    String time;
+    private Integer pageId;
+    private String time;
 
 }

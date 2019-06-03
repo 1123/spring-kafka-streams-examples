@@ -24,6 +24,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Duration;
 import java.util.*;
 
+/**
+ * Some avro experiments.
+ */
+
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { AvroProduceConsumeTest.AvroProduceConsumeTestConfiguration.class })
 class AvroProduceConsumeTest {

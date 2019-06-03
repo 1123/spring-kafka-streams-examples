@@ -7,6 +7,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.*;
 import org.apache.kafka.streams.StreamsConfig;
+import org.example.kafka.streams.fkj.pages.Page;
+import org.example.kafka.streams.fkj.pages.PageSerializer;
+import org.example.kafka.streams.fkj.pageviews.PageView;
+import org.example.kafka.streams.fkj.pageviews.PageViewSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -58,5 +62,17 @@ class TestConfig {
         producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, PageViewSerializer.class);
         return new KafkaProducer<>(producerConfig);
     }
+
+    @Bean(name="pageKafkaProducer")
+    private KafkaProducer<Integer, Page> pageKafkaProducer() {
+        Properties producerConfig = new Properties();
+        producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        producerConfig.put(ProducerConfig.ACKS_CONFIG, "all");
+        producerConfig.put(ProducerConfig.RETRIES_CONFIG, 0);
+        producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
+        producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, PageSerializer.class);
+        return new KafkaProducer<>(producerConfig);
+    }
+
 
 }

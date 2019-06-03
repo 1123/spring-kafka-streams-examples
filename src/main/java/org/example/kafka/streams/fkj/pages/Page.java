@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj;
+package org.example.kafka.streams.fkj.pages;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class Page {
+public class Page {
 
-    int id;
-    String title;
+    private int id;
+    private String title;
 
 }

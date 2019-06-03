@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj;
+package org.example.kafka.streams.fkj.pageviews;
 
 import org.apache.kafka.common.serialization.Serializer;
 import org.codehaus.jackson.map.ObjectMapper;

@@ -1,11 +1,12 @@
-package org.example.kafka.streams.fkj;
+package org.example.kafka.streams.fkj.enrichedpageviews;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
+
 import java.util.Map;
 
-public class PageviewSerde implements Serde<PageView> {
+public class EnrichedPageViewSerde implements Serde<EnrichedPageView> {
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -18,13 +19,12 @@ public class PageviewSerde implements Serde<PageView> {
     }
 
     @Override
-    public Serializer<PageView> serializer() {
-        return new PageViewSerializer();
+    public Serializer<EnrichedPageView> serializer() {
+        return new EnrichedPageViewSerializer();
     }
 
     @Override
-    public Deserializer<PageView> deserializer() {
-        return new PageViewDeserializer();
+    public Deserializer<EnrichedPageView> deserializer() {
+        return new EnrichedPageViewDeserializer();
     }
 }
-
