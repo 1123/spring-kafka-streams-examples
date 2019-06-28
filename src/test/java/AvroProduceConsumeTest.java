@@ -1,10 +1,9 @@
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
-import lombok.Data;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.reflect.ReflectData;
+import org.apache.avro.generic.IndexedRecord;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -13,6 +12,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.protocol.types.SchemaException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,17 +144,31 @@ class AvroProduceConsumeTest {
 
     @Test
     void testGenerateSchema() {
-        Schema schema = ReflectData.get().getSchema(MyRecord.class);
-        System.err.println(schema.toString());
+        avroProducer.send(new ProducerRecord<>("1", new IndexedRecord() {
+
+            String f1 = "some default value";
+
+            @Override
+            public void put(int i, Object v) {
+                if (i == 0) this.f1 = (String) v;
+            }
+
+            @Override
+            public Object get(int i) {
+                if (i == 0) return f1;
+                return null;
+            }
+
+            @Override
+            public Schema getSchema() {
+                return Schema.createRecord("records1", "no doc", "ns1", false,
+                        Collections.singletonList(
+                                new Schema.Field("f1", Schema.create(Schema.Type.STRING), "a string field", "foo")
+                        )
+                );
+            }
+        }));
     }
-
-}
-
-@Data
-class MyRecord {
-
-    String f1 = "abc";
-    String f2 = "xyz";
 
 }
 

@@ -1,0 +1,9 @@
+{
+   "type" : "record",
+   "namespace" : "org.example.kafka.streams.avro.fkj.pages",
+   "name" : "Page",
+   "fields" : [
+      { "name" : "id" , "type" : "int" },
+      { "name" : "title" , "type" : "string" }
+   ]
+}

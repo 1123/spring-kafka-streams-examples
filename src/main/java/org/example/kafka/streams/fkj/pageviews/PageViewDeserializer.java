@@ -1,7 +1,7 @@
 package org.example.kafka.streams.fkj.pageviews;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Map;
