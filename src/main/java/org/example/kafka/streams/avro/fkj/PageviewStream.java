@@ -49,6 +49,9 @@ public class PageviewStream {
 
     KafkaStreams getStream() {
         StreamsBuilder builder = new StreamsBuilder();
+        KStream<String, Order> orderStream = builder.stream("orders");
+        orderStream.filter((k,v) -> "customer-1".equals(v.customerId));
+
         // 1. read input stream and deserialize
         // 2. select a new key for the stream
         KStream<Integer, PageView> pageViewsKStream =
@@ -88,6 +91,12 @@ public class PageviewStream {
         return new KafkaStreams(builder.build(), streamsConfiguration);
     }
 
+
+}
+
+class Order {
+
+    String customerId;
 
 }
 
