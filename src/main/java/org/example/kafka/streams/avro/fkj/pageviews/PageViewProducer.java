@@ -20,7 +20,7 @@ class PageViewProducer implements Runnable {
 
     private Random r = new Random();
 
-    @Scheduled(fixedDelay=100)
+    @Scheduled(initialDelay = 1000, fixedDelay=100)
     public void run() {
         log.info("Sending message");
         PageView toSend = new PageView();

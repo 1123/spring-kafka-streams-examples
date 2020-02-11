@@ -20,7 +20,7 @@ class PageUpdater implements Runnable {
 
     private Random r = new Random();
 
-    @Scheduled(fixedDelay=1000)
+    @Scheduled(initialDelay = 1000, fixedDelay=1000)
     public void run() {
         log.info("Updating a page");
         Page pageToUpdate = new Page();

@@ -26,7 +26,7 @@ public class PageviewStream {
     // UUIDs are used as topic names to avoid conflicting data in subsequent test runs.
     public static String PAGEVIEW_TOPIC = UUID.randomUUID().toString();
     public static String PAGE_TOPIC = UUID.randomUUID().toString();
-    private static String ENRICHED_PAGEVIEW_TOPIC = UUID.randomUUID().toString();
+    public static String ENRICHED_PAGEVIEW_TOPIC = UUID.randomUUID().toString();
 
     @Autowired
     private Properties streamsConfiguration;
@@ -92,9 +92,4 @@ public class PageviewStream {
 
 }
 
-class Order {
-
-    String customerId;
-
-}
 
