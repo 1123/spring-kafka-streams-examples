@@ -13,11 +13,11 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * This test should generate some imaginary page views and updates to web pages.
- * Subsequently it should enrich the dynamic page views with the static data from the web pages.
+ * This test generates some imaginary page views and updates to web pages.
+ * Subsequently it enriches the dynamic page views with the static data from the web pages.
  *
  * The relationship between pages and page views is 1:n.
- * Page views must be re keyed prior to being joined -- since the original keys of the page views are __not__ the page ids.
+ * Page views must be re keyed prior to being joined -- since the original keys of the page views are not the page ids.
  */
 
 @ExtendWith(SpringExtension.class)
@@ -45,7 +45,7 @@ class ForeignKeyJoinTest {
     void test() throws InterruptedException {
         adminClient.createTopics(Collections.singletonList(new NewTopic(PageviewStream.PAGEVIEW_TOPIC, 1, (short) 1)));
         pageviewStream.getStream().start();
-        Thread.sleep(10000);
+        Thread.sleep(20000);
     }
 
 }
