@@ -41,7 +41,7 @@ class AvroForeignKeyJoinTest {
     void test() throws InterruptedException {
         adminClient.createTopics(Collections.singletonList(new NewTopic(PageviewStream.PAGEVIEW_TOPIC, 1, (short) 1)));
         pageviewStream.getStream().start();
-        Thread.sleep(10000);
+        Thread.sleep(20000);
     }
 
 }
