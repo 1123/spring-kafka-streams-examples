@@ -3,7 +3,7 @@ package org.example.kafka.streams.avro.fkj.pageviews;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.example.kafka.streams.avro.fkj.PageviewStream;
+import org.example.kafka.streams.avro.fkj.AvroPageviewStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import java.util.Random;
 
 @Slf4j
 @Service
-class PageViewProducer implements Runnable {
+public class AvroPageViewProducer implements Runnable {
 
     @Autowired
     private KafkaProducer<Integer, PageView> producer;
@@ -26,6 +26,6 @@ class PageViewProducer implements Runnable {
         PageView toSend = new PageView();
         toSend.setId(r.nextInt(5));
         toSend.setTime(new Date().toString());
-        producer.send(new ProducerRecord<>(PageviewStream.PAGEVIEW_TOPIC, 1, toSend));
+        producer.send(new ProducerRecord<>(AvroPageviewStream.PAGEVIEW_TOPIC, 1, toSend));
     }
 }

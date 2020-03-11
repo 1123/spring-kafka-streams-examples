@@ -21,12 +21,15 @@ import java.util.UUID;
 
 @Component
 @Slf4j
-public class PageviewStream {
+public class AvroPageviewStream {
 
     // UUIDs are used as topic names to avoid conflicting data in subsequent test runs.
     public static String PAGEVIEW_TOPIC = UUID.randomUUID().toString();
     public static String PAGE_TOPIC = UUID.randomUUID().toString();
     public static String ENRICHED_PAGEVIEW_TOPIC = UUID.randomUUID().toString();
+    public static String PAGEVIEWS_BY_PAGE = "pageviews-by-page";
+    public static String PAGEVIEWS_REKEYED_BY_ID = "pageviews-rekeyed-by-id";
+    public static String PAGEVIEWS_GROUP_BY_KEY = "pageviews-group-by-key";
 
     @Autowired
     private Properties streamsConfiguration;
@@ -47,25 +50,32 @@ public class PageviewStream {
         return pageSpecificAvroSerde;
     }
 
-    KafkaStreams getStream() {
-        StreamsBuilder builder = new StreamsBuilder();
-
+    private KStream<Integer,PageView> readInputAndRekey(StreamsBuilder builder) {
         // 1. read input stream and deserialize
         // 2. select a new key for the stream
-        KStream<Integer, PageView> pageViewsKStream =
-                builder.stream(PAGEVIEW_TOPIC,
+        return builder.stream(PAGEVIEW_TOPIC,
                         Consumed.with(Serdes.Integer(), pageViewSpecificAvroSerde())
-                );
-        pageViewsKStream.peek((k,v) -> log.info("page view in stream"))
-                        .selectKey((k,v) -> v.getId());
+                ).peek((k,v) -> log.info("page view in stream"))
+                .selectKey((k,v) -> v.getId(), Named.as(PAGEVIEWS_REKEYED_BY_ID));
+    }
+
+    private void groupByPageCountAndWrite(KStream<Integer,PageView> pageViewsKStream) {
         // 3. group by the new key
         // 4. count the records by key.
         KTable<Integer, Long> pageViewsByPageCount = pageViewsKStream
-                .groupByKey(Grouped.with(Serdes.Integer(), pageViewSpecificAvroSerde())).count();
-
+                .groupByKey(
+                        Grouped.with(
+                                PAGEVIEWS_GROUP_BY_KEY,
+                                Serdes.Integer(),
+                                pageViewSpecificAvroSerde()
+                        )
+                ).count();
         pageViewsByPageCount.toStream().peek((k,v) -> System.err.println(k + ": " + v))
-                .to("pageviewsByPageCount", Produced.with(Serdes.Integer(), Serdes.Long()));
+                .to(PAGEVIEWS_BY_PAGE, Produced.with(Serdes.Integer(), Serdes.Long()));
 
+    }
+
+    private KTable<Integer, Page> createPagesKTable(StreamsBuilder builder) {
         // 5. Create a KTable for the pages
         KTable<Integer, Page> pageKTable = builder.table(PAGE_TOPIC, Consumed.with(Serdes.Integer(), pageSpecificAvroSerde()));
         // 6. log the update to the page table
@@ -74,15 +84,37 @@ public class PageviewStream {
                         String.format("Page %d updated: %s", v.getId(), v.getTitle())
                 )
         );
+        return pageKTable;
+    }
 
+    private KStream<Integer, EnrichedPageView> joinPagesAndPageViews(
+            KStream<Integer,PageView> pageViewsKStream,
+            KTable<Integer, Page> pageKTable) {
         // 7. Join the pages and page views.
-        KStream<Integer, EnrichedPageView> enrichedPageViewKStream = pageViewsKStream.join(pageKTable,
-                (pageView, page) -> EnrichedPageView.builder().id(page.getId()).time(pageView.getTime().toString()).title(page.getTitle().toString()).build()
+        KStream<Integer, EnrichedPageView> enrichedPageViewKStream =
+                pageViewsKStream.join(
+                        pageKTable,
+                        (pageView, page) ->
+                                EnrichedPageView.builder()
+                                        .id(page.getId())
+                                        .time(pageView.getTime().toString())
+                                        .title(page.getTitle().toString())
+                                        .build()
         );
 
-        enrichedPageViewKStream.peek((k,v) -> System.err.println(
+        return enrichedPageViewKStream.peek((k,v) -> System.err.println(
                 String.format("Enriched page view %d: %s", v.getId(), v.toString())
         ));
+
+    }
+
+    KafkaStreams getStream() {
+        StreamsBuilder builder = new StreamsBuilder();
+        KStream<Integer, PageView> pageViewsKStream = readInputAndRekey(builder);
+        groupByPageCountAndWrite(pageViewsKStream);
+
+        KTable<Integer, Page> pageKTable = createPagesKTable(builder);
+        KStream<Integer, EnrichedPageView> enrichedPageViewKStream = joinPagesAndPageViews(pageViewsKStream, pageKTable);
         // 8. sink the enriched stream to a new topic
         enrichedPageViewKStream.to(ENRICHED_PAGEVIEW_TOPIC, Produced.with(Serdes.Integer(), new EnrichedPageViewSerde()));
         System.err.println(builder.build().describe());

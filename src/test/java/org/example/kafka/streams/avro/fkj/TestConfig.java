@@ -22,6 +22,9 @@ import java.util.Properties;
 @ComponentScan
 class TestConfig {
 
+    public static String APPLICATION_ID = "foreign-key-join-integration-test";
+    public static String BOOTSTRAP_SERVER = "localhost:9092";
+
     @Bean
     private AdminClient kafkaAdminClient() {
         Properties clientProperties = new Properties();
@@ -53,7 +56,7 @@ class TestConfig {
     @Bean
     private Properties streamsConfiguration() {
         Properties streamsConfiguration = new Properties();
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "foreign-key-join-integration-test");
+        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_ID);
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.Integer().getClass().getName());
         streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, SpecificAvroSerde.class.getName());

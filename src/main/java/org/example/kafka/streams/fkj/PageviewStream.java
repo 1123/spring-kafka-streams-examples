@@ -23,7 +23,8 @@ public class PageviewStream {
     // UUIDs are used as topic names to avoid conflicting data in subsequent test runs.
     public static String PAGEVIEW_TOPIC = UUID.randomUUID().toString();
     public static String PAGE_TOPIC = UUID.randomUUID().toString();
-    private static String ENRICHED_PAGEVIEW_TOPIC = UUID.randomUUID().toString();
+    public static String PAGE_VIEWS_BY_PAGE = "pageviews_by_page";
+    public static String ENRICHED_PAGEVIEW_TOPIC = UUID.randomUUID().toString();
 
     @Autowired
     @Qualifier("streamsConfig")
@@ -45,7 +46,7 @@ public class PageviewStream {
                 .groupByKey(Grouped.with(Serdes.Integer(), new PageViewSerde())).count();
 
         pageViewsByPageCount.toStream().peek((k,v) -> System.err.println(k + ": " + v))
-                .to("pageviewsByPageCount", Produced.with(Serdes.Integer(), Serdes.Long()));
+                .to(PAGE_VIEWS_BY_PAGE, Produced.with(Serdes.Integer(), Serdes.Long()));
 
         // 5. Create a KTable for the pages
         KTable<Integer, Page> pageKTable = builder.table(PAGE_TOPIC, Consumed.with(Serdes.Integer(), new PageSerde()));

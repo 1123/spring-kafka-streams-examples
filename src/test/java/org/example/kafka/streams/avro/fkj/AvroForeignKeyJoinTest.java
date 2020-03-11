@@ -1,10 +1,12 @@
 package org.example.kafka.streams.avro.fkj;
 
+import kafka.tools.StreamsResetter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.streams.KafkaStreams;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,26 +30,30 @@ class AvroForeignKeyJoinTest {
     private AdminClient adminClient;
 
     @Autowired
-    private PageviewStream pageviewStream;
+    private AvroPageviewStream pageviewStream;
 
     @BeforeEach
-    void cleanup() throws ExecutionException, InterruptedException {
+    void setup() throws ExecutionException, InterruptedException {
         log.info("Creating all relevant topics");
-        CreateTopicsResult result = adminClient.createTopics(
+        adminClient.createTopics(
                 Arrays.asList(
-                        new NewTopic(PageviewStream.PAGEVIEW_TOPIC, 1, (short) 1),
-                        new NewTopic(PageviewStream.PAGE_TOPIC, 1, (short) 1),
-                        new NewTopic(PageviewStream.ENRICHED_PAGEVIEW_TOPIC, 1, (short) 1)
+                        new NewTopic(AvroPageviewStream.PAGEVIEW_TOPIC, 1, (short) 1),
+                        new NewTopic(AvroPageviewStream.PAGE_TOPIC, 1, (short) 1),
+                        new NewTopic(AvroPageviewStream.ENRICHED_PAGEVIEW_TOPIC, 1, (short) 1)
                 )
-        );
-        result.all().get();
-        // TODO: there are more topics that need to be cleaned up.
-        // Ideally this should also run after the test.
-        // There is a class that possibly could do this for us: See the StreamsResetter class.
+        ).all().get();
+    }
+
+    @AfterEach
+    void cleanup() throws ExecutionException, InterruptedException {
+        // The StreamsResetter can be used for deleting intermediate topics, but not for input and output topics.
+        log.info("Cleaning up");
         adminClient.deleteTopics(Arrays.asList(
-                "foreign-key-join-integration-test-KSTREAM-AGGREGATE-STATE-STORE-0000000004-changelog",
-                "foreign-key-join-integration-test-KSTREAM-AGGREGATE-STATE-STORE-0000000004-repartition"
-        ));
+                AvroPageviewStream.PAGE_TOPIC,
+                AvroPageviewStream.PAGEVIEW_TOPIC,
+                AvroPageviewStream.ENRICHED_PAGEVIEW_TOPIC,
+                AvroPageviewStream.PAGEVIEWS_BY_PAGE
+        )).all().get();
     }
 
     @Test
@@ -59,7 +65,13 @@ class AvroForeignKeyJoinTest {
             log.info("Stream state: " + stream.state());
             Thread.sleep(100);
         }
+        Thread.sleep(2000);
+        stream.close();
         Thread.sleep(5000);
+        log.info("Stream state: " + stream.state());
+        StreamsResetter streamsResetter = new StreamsResetter();
+        streamsResetter.run(new String[]{"--bootstrap-servers", TestConfig.BOOTSTRAP_SERVER,
+                "--application-id", TestConfig.APPLICATION_ID});
     }
 
 }

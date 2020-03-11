@@ -3,7 +3,7 @@ package org.example.kafka.streams.avro.fkj.pages;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.example.kafka.streams.avro.fkj.PageviewStream;
+import org.example.kafka.streams.avro.fkj.AvroPageviewStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-class PageUpdater implements Runnable {
+public class AvroPageUpdater implements Runnable {
 
     @Autowired
     private KafkaProducer<Integer, Page> producer;
@@ -26,6 +26,6 @@ class PageUpdater implements Runnable {
         Page pageToUpdate = new Page();
         pageToUpdate.setId(r.nextInt(5));
         pageToUpdate.setTitle(UUID.randomUUID().toString());
-        producer.send(new ProducerRecord<>(PageviewStream.PAGE_TOPIC, pageToUpdate.getId(), pageToUpdate));
+        producer.send(new ProducerRecord<>(AvroPageviewStream.PAGE_TOPIC, pageToUpdate.getId(), pageToUpdate));
     }
 }
