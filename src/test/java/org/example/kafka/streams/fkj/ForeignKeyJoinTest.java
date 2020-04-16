@@ -37,16 +37,16 @@ class ForeignKeyJoinTest {
         adminClient.deleteTopics(Arrays.asList(
                 "foreign-key-join-integration-test-KSTREAM-AGGREGATE-STATE-STORE-0000000004-changelog",
                 "foreign-key-join-integration-test-KSTREAM-AGGREGATE-STATE-STORE-0000000004-repartition",
-                PageviewStream.PAGEVIEW_TOPIC,
-                PageviewStream.PAGE_TOPIC,
-                PageviewStream.ENRICHED_PAGEVIEW_TOPIC,
-                PageviewStream.PAGE_VIEWS_BY_PAGE
+                "pageViewsTopic",
+                "pagesTopic",
+                "enrichedPageViewsTopic",
+                "pageViewsByPage"
         ));
     }
 
     @Test
     void test() throws InterruptedException {
-        adminClient.createTopics(Collections.singletonList(new NewTopic(PageviewStream.PAGEVIEW_TOPIC, 1, (short) 1)));
+        adminClient.createTopics(Collections.singletonList(new NewTopic("pageViewsTopic", 1, (short) 1)));
         pageviewStream.getStream().start();
         Thread.sleep(20000);
         pageviewStream.getStream().close();

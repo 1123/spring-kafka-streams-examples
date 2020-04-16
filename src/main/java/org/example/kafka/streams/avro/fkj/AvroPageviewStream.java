@@ -3,8 +3,11 @@ package org.example.kafka.streams.avro.fkj;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.CreateTopicsResult;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
 import org.example.kafka.streams.avro.fkj.pages.Page;
@@ -12,27 +15,39 @@ import org.example.kafka.streams.avro.fkj.pageviews.PageView;
 import org.example.kafka.streams.fkj.enrichedpageviews.EnrichedPageView;
 import org.example.kafka.streams.fkj.enrichedpageviews.EnrichedPageViewSerde;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
-@Component
+@Configuration
 @Slf4j
 public class AvroPageviewStream {
 
-    // UUIDs are used as topic names to avoid conflicting data in subsequent test runs.
-    public static String PAGEVIEW_TOPIC = UUID.randomUUID().toString();
-    public static String PAGE_TOPIC = UUID.randomUUID().toString();
-    public static String ENRICHED_PAGEVIEW_TOPIC = UUID.randomUUID().toString();
-    public static String PAGEVIEWS_BY_PAGE = "pageviews-by-page";
-    public static String PAGEVIEWS_REKEYED_BY_ID = "pageviews-rekeyed-by-id";
-    public static String PAGEVIEWS_GROUP_BY_KEY = "pageviews-group-by-key";
+    @Autowired
+    private NewTopic pageViewsTopic;
 
     @Autowired
-    private Properties streamsConfiguration;
+    private NewTopic pageViewsRekeyedByIdTopic;
+
+    @Autowired
+    private NewTopic pageViewsGroupedByKeyTopic;
+
+    @Autowired
+    private NewTopic pageViewsByPageTopic;
+
+    @Autowired
+    private NewTopic pagesTopic;
+
+    @Autowired
+    private NewTopic enrichedPageViewsTopic;
+
+    @Autowired
+    private AdminClient adminClient;
 
     private final Map<String, String> serdeConfig =
             Collections.singletonMap(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
@@ -53,10 +68,10 @@ public class AvroPageviewStream {
     private KStream<Integer,PageView> readInputAndRekey(StreamsBuilder builder) {
         // 1. read input stream and deserialize
         // 2. select a new key for the stream
-        return builder.stream(PAGEVIEW_TOPIC,
+        return builder.stream(pageViewsTopic.name(),
                         Consumed.with(Serdes.Integer(), pageViewSpecificAvroSerde())
                 ).peek((k,v) -> log.info("page view in stream"))
-                .selectKey((k,v) -> v.getId(), Named.as(PAGEVIEWS_REKEYED_BY_ID));
+                .selectKey((k,v) -> v.getId(), Named.as(pageViewsRekeyedByIdTopic.name()));
     }
 
     private void groupByPageCountAndWrite(KStream<Integer,PageView> pageViewsKStream) {
@@ -65,19 +80,19 @@ public class AvroPageviewStream {
         KTable<Integer, Long> pageViewsByPageCount = pageViewsKStream
                 .groupByKey(
                         Grouped.with(
-                                PAGEVIEWS_GROUP_BY_KEY,
+                                pageViewsGroupedByKeyTopic.name(),
                                 Serdes.Integer(),
                                 pageViewSpecificAvroSerde()
                         )
                 ).count();
         pageViewsByPageCount.toStream().peek((k,v) -> System.err.println(k + ": " + v))
-                .to(PAGEVIEWS_BY_PAGE, Produced.with(Serdes.Integer(), Serdes.Long()));
+                .to(pageViewsByPageTopic.name(), Produced.with(Serdes.Integer(), Serdes.Long()));
 
     }
 
     private KTable<Integer, Page> createPagesKTable(StreamsBuilder builder) {
         // 5. Create a KTable for the pages
-        KTable<Integer, Page> pageKTable = builder.table(PAGE_TOPIC, Consumed.with(Serdes.Integer(), pageSpecificAvroSerde()));
+        KTable<Integer, Page> pageKTable = builder.table(pagesTopic.name(), Consumed.with(Serdes.Integer(), pageSpecificAvroSerde()));
         // 6. log the update to the page table
         pageKTable.toStream().peek(
                 (k,v) -> System.err.println(
@@ -108,19 +123,21 @@ public class AvroPageviewStream {
 
     }
 
-    KafkaStreams getStream() {
-        StreamsBuilder builder = new StreamsBuilder();
-        KStream<Integer, PageView> pageViewsKStream = readInputAndRekey(builder);
+    @Bean
+    public KStream<?, ?> pageViewStream(StreamsBuilder kStreamBuilder) throws InterruptedException, ExecutionException {
+        adminClient.createTopics(
+                Arrays.asList(pageViewsTopic, pagesTopic)
+        ).all().get();
+        KStream<Integer, PageView> pageViewsKStream = readInputAndRekey(kStreamBuilder);
         groupByPageCountAndWrite(pageViewsKStream);
 
-        KTable<Integer, Page> pageKTable = createPagesKTable(builder);
+        KTable<Integer, Page> pageKTable = createPagesKTable(kStreamBuilder);
         KStream<Integer, EnrichedPageView> enrichedPageViewKStream = joinPagesAndPageViews(pageViewsKStream, pageKTable);
         // 8. sink the enriched stream to a new topic
-        enrichedPageViewKStream.to(ENRICHED_PAGEVIEW_TOPIC, Produced.with(Serdes.Integer(), new EnrichedPageViewSerde()));
-        System.err.println(builder.build().describe());
-        return new KafkaStreams(builder.build(), streamsConfiguration);
+        enrichedPageViewKStream.to(enrichedPageViewsTopic.name(), Produced.with(Serdes.Integer(), new EnrichedPageViewSerde()));
+        System.err.println(kStreamBuilder.build().describe());
+        return pageViewsKStream;
     }
-
 
 }
 

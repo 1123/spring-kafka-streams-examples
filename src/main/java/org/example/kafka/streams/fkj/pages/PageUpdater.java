@@ -1,6 +1,7 @@
 package org.example.kafka.streams.fkj.pages;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.example.kafka.streams.fkj.PageviewStream;
@@ -21,10 +22,13 @@ class PageUpdater implements Runnable {
 
     private Random r = new Random();
 
+    @Autowired
+    private NewTopic pageTopic;
+
     @Scheduled(fixedDelay=1000)
     public void run() {
         log.info("Updating a page");
         Page pageToUpdate = Page.builder().id(r.nextInt(5)).title(UUID.randomUUID().toString()).build();
-        producer.send(new ProducerRecord<>(PageviewStream.PAGE_TOPIC, pageToUpdate.getId(), pageToUpdate));
+        producer.send(new ProducerRecord<>(pageTopic.name(), pageToUpdate.getId(), pageToUpdate));
     }
 }
