@@ -1,6 +1,7 @@
 package org.example.kafka.streams.fkj.pageviews;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.example.kafka.streams.fkj.PageviewStream;
@@ -17,12 +18,15 @@ class PageViewProducer implements Runnable {
     @Autowired
     private KafkaProducer<Integer, PageView> producer;
 
+    @Autowired
+    private NewTopic pageViewsTopic;
+
     private Random r = new Random();
 
     @Scheduled(fixedDelay=100)
     public void run() {
         log.info("Sending message");
         PageView toSend = PageView.builder().pageId(r.nextInt(5)).time("1.Aug").build();
-        producer.send(new ProducerRecord<>("pageViewsTopic", 1, toSend));
+        producer.send(new ProducerRecord<>(pageViewsTopic.name(), 1, toSend));
     }
 }

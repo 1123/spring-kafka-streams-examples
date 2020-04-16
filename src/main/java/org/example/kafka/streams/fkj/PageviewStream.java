@@ -1,8 +1,8 @@
 package org.example.kafka.streams.fkj;
 
+import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
 import org.example.kafka.streams.fkj.enrichedpageviews.EnrichedPageView;
@@ -12,18 +12,17 @@ import org.example.kafka.streams.fkj.pages.PageSerde;
 import org.example.kafka.streams.fkj.pageviews.PageView;
 import org.example.kafka.streams.fkj.pageviews.PageViewSerde;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.util.Properties;
-import java.util.UUID;
+import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 @Component
 public class PageviewStream {
 
     @Autowired
-    @Qualifier("streamsConfig")
-    private Properties streamsConfiguration;
+    private AdminClient adminClient;
 
     @Autowired
     private NewTopic pageViewsTopic;
@@ -32,13 +31,17 @@ public class PageviewStream {
     private NewTopic pageViewsByPageTopic;
 
     @Autowired
-    private NewTopic pageTopic;
+    private NewTopic pagesTopic;
 
     @Autowired
     private NewTopic enrichedPageViewsTopic;
 
-    KafkaStreams getStream() {
-        StreamsBuilder builder = new StreamsBuilder();
+    @Bean
+    public KStream<?, ?> pageViewStream(StreamsBuilder builder)
+            throws ExecutionException, InterruptedException {
+        adminClient.createTopics(
+                Arrays.asList(pageViewsTopic, pagesTopic)
+        ).all().get();
         // 1. read input stream and deserialize
         // 2. select a new key for the stream
         KStream<Integer, PageView> pageViewsKStream =
@@ -56,7 +59,7 @@ public class PageviewStream {
                 .to(pageViewsByPageTopic.name(), Produced.with(Serdes.Integer(), Serdes.Long()));
 
         // 5. Create a KTable for the pages
-        KTable<Integer, Page> pageKTable = builder.table(pageTopic.name(), Consumed.with(Serdes.Integer(), new PageSerde()));
+        KTable<Integer, Page> pageKTable = builder.table(pagesTopic.name(), Consumed.with(Serdes.Integer(), new PageSerde()));
         // 6. log the update to the page table
         pageKTable.toStream().peek(
                 (k,v) -> System.err.println(
@@ -75,7 +78,7 @@ public class PageviewStream {
         // 8. sink the enriched stream to a new topic
         enrichedPageViewKStream.to(enrichedPageViewsTopic.name(), Produced.with(Serdes.Integer(), new EnrichedPageViewSerde()));
         System.err.println(builder.build().describe());
-        return new KafkaStreams(builder.build(), streamsConfiguration);
+        return enrichedPageViewKStream;
     }
 
 

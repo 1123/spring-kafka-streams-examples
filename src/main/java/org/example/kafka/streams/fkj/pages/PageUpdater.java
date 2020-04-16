@@ -23,12 +23,12 @@ class PageUpdater implements Runnable {
     private Random r = new Random();
 
     @Autowired
-    private NewTopic pageTopic;
+    private NewTopic pagesTopic;
 
     @Scheduled(fixedDelay=1000)
     public void run() {
         log.info("Updating a page");
         Page pageToUpdate = Page.builder().id(r.nextInt(5)).title(UUID.randomUUID().toString()).build();
-        producer.send(new ProducerRecord<>(pageTopic.name(), pageToUpdate.getId(), pageToUpdate));
+        producer.send(new ProducerRecord<>(pagesTopic.name(), pageToUpdate.getId(), pageToUpdate));
     }
 }

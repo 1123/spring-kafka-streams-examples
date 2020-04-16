@@ -25,31 +25,9 @@ import java.util.Collections;
 @ContextConfiguration(classes = { TestConfig.class })
 class ForeignKeyJoinTest {
 
-    @Autowired
-    private AdminClient adminClient;
-
-    @Autowired
-    private PageviewStream pageviewStream;
-
-    @AfterEach
-    @BeforeEach
-    void cleanup() {
-        adminClient.deleteTopics(Arrays.asList(
-                "foreign-key-join-integration-test-KSTREAM-AGGREGATE-STATE-STORE-0000000004-changelog",
-                "foreign-key-join-integration-test-KSTREAM-AGGREGATE-STATE-STORE-0000000004-repartition",
-                "pageViewsTopic",
-                "pagesTopic",
-                "enrichedPageViewsTopic",
-                "pageViewsByPage"
-        ));
-    }
-
     @Test
     void test() throws InterruptedException {
-        adminClient.createTopics(Collections.singletonList(new NewTopic("pageViewsTopic", 1, (short) 1)));
-        pageviewStream.getStream().start();
-        Thread.sleep(20000);
-        pageviewStream.getStream().close();
+        Thread.sleep(2000000);
     }
 
 }
