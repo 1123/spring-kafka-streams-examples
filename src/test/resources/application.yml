@@ -1,3 +1,0 @@
-kafka:
-  streams:
-    application-id: "sample-ks-app"
