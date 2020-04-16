@@ -146,7 +146,7 @@
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>monitoring-interceptors</artifactId>
-            <version>5.4.1</version>
+            <version>${confluent.platform.version}</version>
         </dependency>
     </dependencies>
 

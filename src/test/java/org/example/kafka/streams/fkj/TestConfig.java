@@ -6,13 +6,15 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.*;
+import org.apache.kafka.common.serialization.IntegerSerializer;
+import org.apache.kafka.common.serialization.LongDeserializer;
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.example.kafka.streams.fkj.pages.Page;
 import org.example.kafka.streams.fkj.pages.PageSerializer;
 import org.example.kafka.streams.fkj.pageviews.PageView;
 import org.example.kafka.streams.fkj.pageviews.PageViewSerializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
@@ -30,7 +32,7 @@ import java.util.UUID;
 @EnableKafkaStreams
 class TestConfig {
 
-    private final String APPLICATION_ID = "spring-json-ks-app";
+    private final static String APPLICATION_ID = "spring-json-ks-app";
 
     private final String uuid = UUID.randomUUID().toString();
 
@@ -81,16 +83,6 @@ class TestConfig {
         return new KafkaStreamsConfiguration(streamsConfiguration);
     }
 
-    @Bean()
-    private Properties consumerConfig() {
-        Properties consumerConfig = new Properties();
-        consumerConfig.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, "foreign-key-join-integration-test-consumer");
-        consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-        return consumerConfig;
-    }
 
     @Bean
     private AdminClient kafkaAdminClient() {
@@ -107,6 +99,9 @@ class TestConfig {
         producerConfig.put(ProducerConfig.RETRIES_CONFIG, 0);
         producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
         producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, PageViewSerializer.class);
+        producerConfig.put(
+                ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
+                "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor");
         return new KafkaProducer<>(producerConfig);
     }
 

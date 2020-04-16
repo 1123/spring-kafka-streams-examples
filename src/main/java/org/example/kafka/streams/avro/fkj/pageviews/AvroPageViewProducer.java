@@ -30,6 +30,6 @@ public class AvroPageViewProducer implements Runnable {
         PageView toSend = new PageView();
         toSend.setId(r.nextInt(5));
         toSend.setTime(new Date().toString());
-        producer.send(new ProducerRecord<>(pageViewsTopic.name(), 1, toSend));
+        producer.send(new ProducerRecord<>(pageViewsTopic.name(), null, toSend));
     }
 }
