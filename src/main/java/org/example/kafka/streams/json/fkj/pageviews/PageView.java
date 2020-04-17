@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj.pageviews;
+package org.example.kafka.streams.json.fkj.pageviews;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

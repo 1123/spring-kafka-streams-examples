@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj.pages;
+package org.example.kafka.streams.json.fkj.pages;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

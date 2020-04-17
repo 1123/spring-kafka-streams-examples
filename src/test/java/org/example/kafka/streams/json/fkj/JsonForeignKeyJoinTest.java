@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj;
+package org.example.kafka.streams.json.fkj;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

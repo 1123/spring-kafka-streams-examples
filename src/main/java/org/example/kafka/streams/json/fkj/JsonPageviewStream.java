@@ -1,16 +1,16 @@
-package org.example.kafka.streams.fkj;
+package org.example.kafka.streams.json.fkj;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
-import org.example.kafka.streams.fkj.enrichedpageviews.EnrichedPageView;
-import org.example.kafka.streams.fkj.enrichedpageviews.EnrichedPageViewSerde;
-import org.example.kafka.streams.fkj.pages.Page;
-import org.example.kafka.streams.fkj.pages.PageSerde;
-import org.example.kafka.streams.fkj.pageviews.PageView;
-import org.example.kafka.streams.fkj.pageviews.PageViewSerde;
+import org.example.kafka.streams.json.fkj.enrichedpageviews.EnrichedPageView;
+import org.example.kafka.streams.json.fkj.enrichedpageviews.EnrichedPageViewSerde;
+import org.example.kafka.streams.json.fkj.pages.Page;
+import org.example.kafka.streams.json.fkj.pages.PageSerde;
+import org.example.kafka.streams.json.fkj.pageviews.PageView;
+import org.example.kafka.streams.json.fkj.pageviews.PageViewSerde;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

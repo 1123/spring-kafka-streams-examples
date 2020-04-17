@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj.pages;
+package org.example.kafka.streams.json.fkj.pageviews;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @Service
-public class PageSerializer implements Serializer<Page> {
+public class PageViewSerializer implements Serializer<PageView> {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -18,7 +18,7 @@ public class PageSerializer implements Serializer<Page> {
     }
 
     @Override
-    public byte[] serialize(String topic, Page data) {
+    public byte[] serialize(String topic, PageView data) {
         try {
             return objectMapper.writeValueAsBytes(data);
         } catch (IOException e1) {

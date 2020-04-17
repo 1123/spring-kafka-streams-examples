@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj.pageviews;
+package org.example.kafka.streams.json.fkj.pageviews;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;

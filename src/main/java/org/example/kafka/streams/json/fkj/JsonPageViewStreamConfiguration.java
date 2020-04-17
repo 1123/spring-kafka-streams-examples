@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj;
+package org.example.kafka.streams.json.fkj;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
@@ -9,10 +9,10 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
-import org.example.kafka.streams.fkj.pages.Page;
-import org.example.kafka.streams.fkj.pages.PageSerializer;
-import org.example.kafka.streams.fkj.pageviews.PageView;
-import org.example.kafka.streams.fkj.pageviews.PageViewSerializer;
+import org.example.kafka.streams.json.fkj.pages.Page;
+import org.example.kafka.streams.json.fkj.pages.PageSerializer;
+import org.example.kafka.streams.json.fkj.pageviews.PageView;
+import org.example.kafka.streams.json.fkj.pageviews.PageViewSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafkaStreams;

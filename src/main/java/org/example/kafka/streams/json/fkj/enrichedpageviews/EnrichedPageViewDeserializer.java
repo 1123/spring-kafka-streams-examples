@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj.pageviews;
+package org.example.kafka.streams.json.fkj.enrichedpageviews;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -6,7 +6,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 import java.io.IOException;
 import java.util.Map;
 
-class PageViewDeserializer implements Deserializer<PageView> {
+class EnrichedPageViewDeserializer implements Deserializer<EnrichedPageView> {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -15,9 +15,9 @@ class PageViewDeserializer implements Deserializer<PageView> {
     }
 
     @Override
-    public PageView deserialize(String topic, byte[] data) {
+    public EnrichedPageView deserialize(String topic, byte[] data) {
         try {
-            return objectMapper.readValue(data, PageView.class);
+            return objectMapper.readValue(data, EnrichedPageView.class);
         } catch (IOException e) {
             e.printStackTrace();
         }

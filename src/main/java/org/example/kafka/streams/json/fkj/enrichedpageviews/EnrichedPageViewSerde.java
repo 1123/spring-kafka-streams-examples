@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj.pages;
+package org.example.kafka.streams.json.fkj.enrichedpageviews;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -6,7 +6,7 @@ import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Map;
 
-public class PageSerde implements Serde<Page> {
+public class EnrichedPageViewSerde implements Serde<EnrichedPageView> {
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -19,13 +19,12 @@ public class PageSerde implements Serde<Page> {
     }
 
     @Override
-    public Serializer<Page> serializer() {
-        return new PageSerializer();
+    public Serializer<EnrichedPageView> serializer() {
+        return new EnrichedPageViewSerializer();
     }
 
     @Override
-    public Deserializer<Page> deserializer() {
-        return new PageDeserializer();
+    public Deserializer<EnrichedPageView> deserializer() {
+        return new EnrichedPageViewDeserializer();
     }
 }
-

@@ -1,8 +1,7 @@
-package org.example.kafka.streams.fkj;
+package org.example.kafka.streams.json.fkj;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * This application generates some imaginary page views and updates to web pages.

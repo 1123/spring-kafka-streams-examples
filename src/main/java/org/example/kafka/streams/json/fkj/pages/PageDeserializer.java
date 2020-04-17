@@ -1,4 +1,4 @@
-package org.example.kafka.streams.fkj.pages;
+package org.example.kafka.streams.json.fkj.pages;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
