@@ -89,14 +89,9 @@
             <version>${kafka.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.2.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>2.2.6.RELEASE</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -138,15 +133,13 @@
             <version>${kafka.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-            <version>2.4.5.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>monitoring-interceptors</artifactId>
             <version>${confluent.platform.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
         </dependency>
     </dependencies>
 

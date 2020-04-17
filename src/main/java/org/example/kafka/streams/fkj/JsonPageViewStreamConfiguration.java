@@ -7,16 +7,14 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.IntegerSerializer;
-import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.example.kafka.streams.fkj.pages.Page;
 import org.example.kafka.streams.fkj.pages.PageSerializer;
 import org.example.kafka.streams.fkj.pageviews.PageView;
 import org.example.kafka.streams.fkj.pageviews.PageViewSerializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
 import org.springframework.kafka.config.KafkaStreamsConfiguration;
 import org.springframework.kafka.config.TopicBuilder;
@@ -27,45 +25,19 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-@EnableScheduling
-@ComponentScan
+@Configuration
 @EnableKafkaStreams
-class TestConfig {
+@EnableScheduling
+public class JsonPageViewStreamConfiguration {
 
     private final static String APPLICATION_ID = "spring-json-ks-app";
+
+    private static String BOOTSTRAP_SERVERS = "localhost:9092";
 
     private final String uuid = UUID.randomUUID().toString();
 
     @Bean
-    public NewTopic enrichedPageViewsTopic() {
-        return TopicBuilder.name("epv-" + uuid).build();
-    }
-
-    @Bean
-    public NewTopic pagesTopic() {
-        return TopicBuilder
-                .name("pages-" + uuid)
-                .partitions(3)
-                .build();
-    }
-
-    @Bean
-    public NewTopic pageViewsTopic() {
-        return TopicBuilder
-                .name("pageviews-" + uuid)
-                .partitions(3)
-                .build();
-    }
-
-    @Bean
-    public NewTopic pageViewsByPageTopic() {
-        return TopicBuilder.name("pvbp-" + uuid).build();
-    }
-
-    private static String BOOTSTRAP_SERVERS = "localhost:9092";
-
-    @Bean
-    private KafkaStreamsConfiguration defaultKafkaStreamsConfig() {
+    public KafkaStreamsConfiguration defaultKafkaStreamsConfig() {
         Map<String, Object> streamsConfiguration = new HashMap<>();
         streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_ID);
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
@@ -83,16 +55,8 @@ class TestConfig {
         return new KafkaStreamsConfiguration(streamsConfiguration);
     }
 
-
-    @Bean
-    private AdminClient kafkaAdminClient() {
-        Properties clientProperties = new Properties();
-        clientProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        return KafkaAdminClient.create(clientProperties);
-    }
-
     @Bean(name="pageviewKafkaProducer")
-    private KafkaProducer<Integer, PageView> pageviewProducerConfig() {
+    public KafkaProducer<Integer, PageView> pageviewProducerConfig() {
         Properties producerConfig = new Properties();
         producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         producerConfig.put(ProducerConfig.ACKS_CONFIG, "all");
@@ -106,7 +70,7 @@ class TestConfig {
     }
 
     @Bean(name="pageKafkaProducer")
-    private KafkaProducer<Integer, Page> pageKafkaProducer() {
+    public KafkaProducer<Integer, Page> pageKafkaProducer() {
         Properties producerConfig = new Properties();
         producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         producerConfig.put(ProducerConfig.ACKS_CONFIG, "all");
@@ -114,6 +78,39 @@ class TestConfig {
         producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
         producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, PageSerializer.class);
         return new KafkaProducer<>(producerConfig);
+    }
+
+    @Bean
+    public AdminClient kafkaAdminClient() {
+        Properties clientProperties = new Properties();
+        clientProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        return KafkaAdminClient.create(clientProperties);
+    }
+
+    @Bean
+    public NewTopic pageViewsTopic() {
+        return TopicBuilder
+                .name("pageviews-" + uuid)
+                .partitions(3)
+                .build();
+    }
+
+    @Bean
+    public NewTopic pagesTopic() {
+        return TopicBuilder
+                .name("pages-" + uuid)
+                .partitions(3)
+                .build();
+    }
+
+    @Bean
+    public NewTopic enrichedPageViewsTopic() {
+        return TopicBuilder.name("epv-" + uuid).build();
+    }
+
+    @Bean
+    public NewTopic pageViewsByPageTopic() {
+        return TopicBuilder.name("pvbp-" + uuid).build();
     }
 
 }

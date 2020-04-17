@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 @Component
-public class PageviewStream {
+public class JsonPageviewStream {
 
     @Autowired
     private AdminClient adminClient;
