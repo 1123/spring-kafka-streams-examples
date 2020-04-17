@@ -5,11 +5,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest
-@Import(JsonPageViewStreamConfiguration.class)
-public class JsonForeignKeyJoinTest {
+@Import(JsonEnrichmentConfig.class)
+class JsonEnrichmentTest {
 
     @Test
-    public void test() throws InterruptedException {
+    void test() throws InterruptedException {
         Thread.sleep(10000);
     }
 

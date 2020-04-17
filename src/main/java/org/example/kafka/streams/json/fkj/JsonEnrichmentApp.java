@@ -13,10 +13,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 
 @SpringBootApplication
-public class JsonPageViewStreamMain {
+public class JsonEnrichmentApp {
 
     public static void main(String [] args) {
-        SpringApplication.run(JsonPageViewStreamMain.class);
+        SpringApplication.run(JsonEnrichmentApp.class);
     }
 
 }

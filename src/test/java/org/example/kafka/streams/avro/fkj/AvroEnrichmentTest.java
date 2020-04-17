@@ -5,8 +5,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest
-@Import(AvroPageViewStreamConfiguration.class)
-class AvroForeignKeyJoinTest {
+@Import(AvroEnrichmentConfig.class)
+class AvroEnrichmentTest {
 
     @Test
     void test() throws InterruptedException {

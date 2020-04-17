@@ -30,7 +30,7 @@ import java.util.UUID;
 @Configuration
 @EnableKafkaStreams
 @EnableScheduling
-public class AvroPageViewStreamConfiguration {
+public class AvroEnrichmentConfig {
 
     private final String uuid = UUID.randomUUID().toString();
 
@@ -68,8 +68,6 @@ public class AvroPageViewStreamConfiguration {
                 .partitions(3)
                 .build();
     }
-
-
 
     @Bean
     public NewTopic enrichedPageViewsTopic() {

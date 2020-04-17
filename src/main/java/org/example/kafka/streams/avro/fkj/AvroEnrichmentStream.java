@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 @Configuration
 @Slf4j
-public class AvroPageviewStream {
+public class AvroEnrichmentStream {
 
     @Autowired
     private NewTopic pageViewsTopic;
@@ -65,10 +65,12 @@ public class AvroPageviewStream {
     private KStream<Integer,PageView> readInputAndRekey(StreamsBuilder builder) {
         // 1. read input stream and deserialize
         // 2. select a new key for the stream
-        return builder.stream(pageViewsTopic.name(),
-                        Consumed.with(Serdes.Integer(), pageViewSpecificAvroSerde())
-                ).peek((k,v) -> log.info("page view in stream"))
-                .selectKey((k,v) -> v.getId(), Named.as(pageViewsRekeyedByIdTopic.name()));
+        return builder.stream(
+                pageViewsTopic.name(),
+                Consumed.with(Serdes.Integer(), pageViewSpecificAvroSerde())
+        ).selectKey(
+                (k,v) -> v.getId(), Named.as(pageViewsRekeyedByIdTopic.name())
+        );
     }
 
     private void groupByPageCountAndWrite(KStream<Integer,PageView> pageViewsKStream) {
@@ -82,8 +84,9 @@ public class AvroPageviewStream {
                                 pageViewSpecificAvroSerde()
                         )
                 ).count();
-        pageViewsByPageCount.toStream().peek((k,v) -> System.err.println(k + ": " + v))
-                .to(pageViewsByPageTopic.name(), Produced.with(Serdes.Integer(), Serdes.Long()));
+        pageViewsByPageCount.toStream().peek(
+                (k,v) -> log.info("Page with id {} was seen {} times.", k, v)
+        ).to(pageViewsByPageTopic.name(), Produced.with(Serdes.Integer(), Serdes.Long()));
 
     }
 
@@ -92,9 +95,7 @@ public class AvroPageviewStream {
         KTable<Integer, Page> pageKTable = builder.table(pagesTopic.name(), Consumed.with(Serdes.Integer(), pageSpecificAvroSerde()));
         // 6. log the update to the page table
         pageKTable.toStream().peek(
-                (k,v) -> System.err.println(
-                        String.format("Page %d updated: %s", v.getId(), v.getTitle())
-                )
+                (k,v) -> log.trace("Page with id {} has new title: {}", v.getId(), v.getTitle())
         );
         return pageKTable;
     }
@@ -114,10 +115,7 @@ public class AvroPageviewStream {
                                         .build()
         );
 
-        return enrichedPageViewKStream.peek((k,v) -> System.err.println(
-                String.format("Enriched page view %d: %s", v.getId(), v.toString())
-        ));
-
+        return enrichedPageViewKStream.peek((k,v) -> log.info("Enriched page view {}: {}", v.getId(), v.toString()));
     }
 
     @Bean
@@ -132,7 +130,7 @@ public class AvroPageviewStream {
         KStream<Integer, EnrichedPageView> enrichedPageViewKStream = joinPagesAndPageViews(pageViewsKStream, pageKTable);
         // 8. sink the enriched stream to a new topic
         enrichedPageViewKStream.to(enrichedPageViewsTopic.name(), Produced.with(Serdes.Integer(), new EnrichedPageViewSerde()));
-        System.err.println(kStreamBuilder.build().describe());
+        log.info(kStreamBuilder.build().describe().toString());
         return pageViewsKStream;
     }
 

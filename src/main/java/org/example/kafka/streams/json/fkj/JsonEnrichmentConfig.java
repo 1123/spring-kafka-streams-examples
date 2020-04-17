@@ -28,7 +28,7 @@ import java.util.UUID;
 @Configuration
 @EnableKafkaStreams
 @EnableScheduling
-public class JsonPageViewStreamConfiguration {
+public class JsonEnrichmentConfig {
 
     private final static String APPLICATION_ID = "spring-json-ks-app";
 

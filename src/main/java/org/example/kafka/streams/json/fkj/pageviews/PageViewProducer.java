@@ -24,8 +24,8 @@ class PageViewProducer implements Runnable {
 
     @Scheduled(fixedDelay=100)
     public void run() {
-        log.info("Sending message");
-        PageView toSend = PageView.builder().pageId(r.nextInt(5)).time("1.Aug").build();
-        producer.send(new ProducerRecord<>(pageViewsTopic.name(), null, toSend));
+        PageView pageView = PageView.builder().pageId(r.nextInt(5)).time("1.Aug").build();
+        log.trace("Pageview Event: " + pageView.toString());
+        producer.send(new ProducerRecord<>(pageViewsTopic.name(), null, pageView));
     }
 }

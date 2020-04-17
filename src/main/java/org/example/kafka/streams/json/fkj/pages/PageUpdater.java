@@ -25,8 +25,8 @@ class PageUpdater implements Runnable {
 
     @Scheduled(fixedDelay=1000)
     public void run() {
-        log.info("Updating a page");
-        Page pageToUpdate = Page.builder().id(r.nextInt(5)).title(UUID.randomUUID().toString()).build();
-        producer.send(new ProducerRecord<>(pagesTopic.name(), pageToUpdate.getId(), pageToUpdate));
+        Page page = Page.builder().id(r.nextInt(5)).title(UUID.randomUUID().toString()).build();
+        log.trace("Page updated: " + page.toString());
+        producer.send(new ProducerRecord<>(pagesTopic.name(), page.getId(), page));
     }
 }
