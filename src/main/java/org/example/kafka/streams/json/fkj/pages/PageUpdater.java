@@ -5,6 +5,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 class PageUpdater implements Runnable {
 
     @Autowired
-    private KafkaProducer<Integer, Page> producer;
+    private KafkaTemplate<Integer, Page> pageKafkaTemplate;
 
     private Random r = new Random();
 
@@ -27,6 +28,6 @@ class PageUpdater implements Runnable {
     public void run() {
         Page page = Page.builder().id(r.nextInt(5)).title(UUID.randomUUID().toString()).build();
         log.trace("Page updated: " + page.toString());
-        producer.send(new ProducerRecord<>(pagesTopic.name(), page.getId(), page));
+        pageKafkaTemplate.send(new ProducerRecord<>(pagesTopic.name(), page.getId(), page));
     }
 }

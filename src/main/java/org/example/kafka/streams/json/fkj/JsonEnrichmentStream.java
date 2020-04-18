@@ -14,23 +14,22 @@ import org.example.kafka.streams.json.fkj.pageviews.PageView;
 import org.example.kafka.streams.json.fkj.pageviews.PageViewSerde;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.KafkaAdmin;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
-@Component
 @Slf4j
+@Configuration
 public class JsonEnrichmentStream {
 
     @Autowired
-    private AdminClient adminClient;
+    private KafkaAdmin admin;
 
     @Autowired
     private NewTopic pageViewsTopic;
-
-    @Autowired
-    private NewTopic pageViewsByPageTopic;
 
     @Autowired
     private NewTopic pagesTopic;
@@ -38,9 +37,13 @@ public class JsonEnrichmentStream {
     @Autowired
     private NewTopic enrichedPageViewsTopic;
 
+    @Autowired
+    private NewTopic pageViewsByPageTopic;
+
     @Bean
-    public KStream<?, ?> pageViewStream(StreamsBuilder builder)
+    public KStream<?, ?> stream(StreamsBuilder builder)
             throws ExecutionException, InterruptedException {
+        AdminClient adminClient = AdminClient.create(admin.getConfig());
         adminClient.createTopics(
                 Arrays.asList(pageViewsTopic, pagesTopic)
         ).all().get();
@@ -73,6 +76,4 @@ public class JsonEnrichmentStream {
         return enrichedPageViewKStream;
     }
 
-
 }
-

@@ -15,8 +15,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class JsonEnrichmentApp {
 
-    public static void main(String [] args) {
-        SpringApplication.run(JsonEnrichmentApp.class);
+    public static void main(String[] args) {
+        SpringApplication.run(JsonEnrichmentApp.class, args);
     }
 
 }
+

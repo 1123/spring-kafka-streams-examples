@@ -5,6 +5,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.Random;
 class PageViewProducer implements Runnable {
 
     @Autowired
-    private KafkaProducer<Integer, PageView> producer;
+    private KafkaTemplate<Integer, PageView> pageViewKafkaTemplate;
 
     @Autowired
     private NewTopic pageViewsTopic;
@@ -26,6 +27,6 @@ class PageViewProducer implements Runnable {
     public void run() {
         PageView pageView = PageView.builder().pageId(r.nextInt(5)).time("1.Aug").build();
         log.trace("Pageview Event: " + pageView.toString());
-        producer.send(new ProducerRecord<>(pageViewsTopic.name(), null, pageView));
+        pageViewKafkaTemplate.send(new ProducerRecord<>(pageViewsTopic.name(), null, pageView));
     }
 }

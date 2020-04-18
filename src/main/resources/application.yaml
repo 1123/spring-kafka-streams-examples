@@ -1,0 +1,25 @@
+spring:
+  kafka:
+    consumer:
+      group-id: foo
+      auto-offset-reset: earliest
+      properties:
+        interceptor:
+          classes: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+    producer:
+      properties:
+        interceptor:
+          classes: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+    streams:
+      application-id: foo-ks-app
+      properties:
+        default:
+          key:
+            serde: org.apache.kafka.common.serialization.Serdes$IntegerSerde
+        producer:
+          interceptor:
+            classes: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+        consumer:
+          interceptor:
+            classes: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+
